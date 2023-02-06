@@ -1,6 +1,6 @@
 """
 I want this code to be able to take a string of text and return a vector of numbers
-then I want to be able to perform mathmatical operations on those vectors
+then I want to be able to perform mathematical operations on those vectors
 then I want to be able to take a vector of numbers and return a string of text
 
 The purpose of this would be operatioins like:
@@ -18,6 +18,35 @@ result = word2vec_model.most_similar(positive=['woman', 'king'], negative=['man'
 # Print the result
 print("The closest match to 'king - man + woman' is:", result[0][0])
 
+================================
+
+gensim didn't work for me, so I'm going to try this:
+import spacy
+import numpy as np
+
+# Load the medium-sized English model
+nlp = spacy.load("en_core_web_md")
+
+# Define the words you want to compare
+word1 = nlp("king")
+word2 = nlp("man")
+word3 = nlp("woman")
+
+# Perform vector addition to find the vector for "queen"
+result = word1.vector - word2.vector + word3.vector
+
+# Add an extra dimension to the input array
+result = np.reshape(result, (1, result.shape[0]))
+
+# Find the closest word to the result
+most_similar = nlp.vocab.vectors.most_similar(result)
+
+# Print the text representation of the closest word
+print("Result:", nlp.vocab[most_similar[0][0]].text)
+================================
+
+This produces rusults but they are not very good. kinda nonsense words that are similar to the inputs:
+the above code produces: kingi
 """
 
 import openai
@@ -29,9 +58,28 @@ import numpy as np
 from numpy.linalg import norm
 import datetime
 import gensim.downloader as api
+import spacy
+import numpy as np
 
-# Download a pre-trained word2vec model
-word2vec_model = api.load("word2vec-google-news-300")
+# Load the medium-sized English model
+nlp = spacy.load("en_core_web_md")
+
+# Define the words you want to compare
+word1 = nlp("king")
+word2 = nlp("man")
+word3 = nlp("woman")
+
+# Perform vector addition to find the vector for "queen"
+result = word1.vector - word2.vector + word3.vector
+
+# Add an extra dimension to the input array
+result = np.reshape(result, (1, result.shape[0]))
+
+# Find the closest word to the result
+most_similar = nlp.vocab.vectors.most_similar(result)
+
+# Print the text representation of the closest word
+print("Result:", nlp.vocab[most_similar[0][0]].text)
 
 def load_json(filepath):
     with open(filepath, 'r', encoding='utf-8') as infile:
